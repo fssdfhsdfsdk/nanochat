@@ -147,6 +147,10 @@ def load_model(source, *args, **kwargs):
         "sft": "chatsft_checkpoints",
         "rl": "chatrl_checkpoints",
     }[source]
-    base_dir = get_base_dir()
+    base_dir = kwargs.pop("base_dir", None)  # remove if present
+    if base_dir is None:
+        base_dir = get_base_dir()
+    else:
+        print(f"Using custom base dir: {base_dir}")
     checkpoints_dir = os.path.join(base_dir, model_dir)
     return load_model_from_dir(checkpoints_dir, *args, **kwargs)
