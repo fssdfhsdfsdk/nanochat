@@ -18,3 +18,5 @@ experiments/
 ignore/
 knowledge/
 ideas/
+
+*.parquet
