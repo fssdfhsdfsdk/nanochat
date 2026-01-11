@@ -220,6 +220,13 @@ while True:
     if master_process and last_step and not args.dry_run:
         output_dirname = args.model_tag if args.model_tag else f"d{depth}" # e.g. d12
         checkpoint_dir = os.path.join(base_dir, "mid_checkpoints", output_dirname)
+
+        try:
+            print(val_bpb)
+        except NameError:
+            val_bpb = -1
+            print0(f"last_step:{last_step} is too small, no evalute.")
+
         save_checkpoint(
             checkpoint_dir,
             step,
