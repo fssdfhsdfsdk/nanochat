@@ -150,6 +150,12 @@ def autodetect_device_type():
     print0(f"Autodetected device type: {device_type}")
     return device_type
 
+def supports_tf32():
+    if not torch.cuda.is_available():
+        return False
+    prop = torch.cuda.get_device_properties(0)
+    return prop.major >= 8
+
 def compute_init(device_type="cuda"): # cuda|cpu|mps
     """Basic initialization that we keep doing over and over, so make common."""
 
@@ -170,7 +176,14 @@ def compute_init(device_type="cuda"): # cuda|cpu|mps
 
     # Precision
     if device_type == "cuda":
-        torch.backends.cuda.matmul.fp32_precision = "tf32" # uses tf32 instead of fp32 for matmuls
+        if supports_tf32():
+            print0("use tf32 for speed up")
+            torch.backends.cuda.matmul.fp32_precision = "tf32" # uses tf32 instead of fp32 for matmuls
+        else:
+            prop = torch.cuda.get_device_properties(0)
+            print0(f"GPU name: {prop.name}")
+            print0(f"GPU Compute ability: {prop.major}.{prop.minor}")
+            print0("dont not support tf32")
 
     # Distributed setup: Distributed Data Parallel (DDP), optional, and requires CUDA
     is_ddp_requested, ddp_rank, ddp_local_rank, ddp_world_size = get_dist_info()
